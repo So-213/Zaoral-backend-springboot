@@ -1,0 +1,223 @@
+{
+  "info": {
+    "name": "Zaoral Backend (dev)",
+    "description": "開発用リクエスト集。\n\n前提: Spring Boot が起動していること、テストユーザーが作成済みであること(db/create_test_user.sql)。\nX-User-Id は本来 Next.js が認証後に付与するヘッダ。ここではコレクション変数 userId を使う。",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    { "key": "baseUrl", "value": "http://localhost:8080" },
+    { "key": "userId", "value": "test-user-1" },
+    { "key": "projectId", "value": "" }
+  ],
+  "item": [
+    {
+      "name": "health",
+      "item": [
+        {
+          "name": "ヘルスチェック",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "health"]
+            }
+          }
+        },
+        {
+          "name": "ヘルスチェック(DB接続を含む)",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/actuator/health",
+              "host": ["{{baseUrl}}"],
+              "path": ["actuator", "health"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "quota",
+      "item": [
+        {
+          "name": "quota初期化",
+          "request": {
+            "description": "サインアップ時に events.createUser から呼ばれる想定。何度呼んでも同じ結果(冪等)。",
+            "method": "POST",
+            "header": [
+              { "key": "X-User-Id", "value": "{{userId}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/internal/user-quota",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "internal", "user-quota"]
+            }
+          }
+        },
+        {
+          "name": "quota取得",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-User-Id", "value": "{{userId}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/account/quota",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "account", "quota"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "projects",
+      "item": [
+        {
+          "name": "プロジェクト作成",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "type": "text/javascript",
+                "exec": [
+                  "// 作成したプロジェクトの id を「プロジェクト削除」で使えるよう保存する",
+                  "if (pm.response.code === 201) {",
+                  "    pm.collectionVariables.set('projectId', pm.response.json().id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              { "key": "X-User-Id", "value": "{{userId}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"slug\": \"test-slug-1\",\n  \"type\": \"message\",\n  \"name\": \"テストプロジェクト\",\n  \"message\": \"返信待ってます\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/projects",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "projects"]
+            }
+          }
+        },
+        {
+          "name": "プロジェクト一覧",
+          "request": {
+            "method": "GET",
+            "header": [
+              { "key": "X-User-Id", "value": "{{userId}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/projects",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "projects"]
+            }
+          }
+        },
+        {
+          "name": "プロジェクト削除",
+          "request": {
+            "description": "直前の「プロジェクト作成」で保存した projectId を使う。",
+            "method": "DELETE",
+            "header": [
+              { "key": "X-User-Id", "value": "{{userId}}" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/projects/{{projectId}}",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "projects", "{{projectId}}"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "plan",
+      "item": [
+        {
+          "name": "プラン変更(PREMIUM)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "X-User-Id", "value": "{{userId}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"plan\": \"PREMIUM\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/account/plan",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "account", "plan"]
+            }
+          }
+        },
+        {
+          "name": "プラン変更(FREE)",
+          "request": {
+            "method": "PUT",
+            "header": [
+              { "key": "X-User-Id", "value": "{{userId}}" },
+              { "key": "Content-Type", "value": "application/json" }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"plan\": \"FREE\"\n}",
+              "options": { "raw": { "language": "json" } }
+            },
+            "url": {
+              "raw": "{{baseUrl}}/api/account/plan",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "account", "plan"]
+            }
+          }
+        }
+      ]
+    },
+    {
+      "name": "異常系",
+      "item": [
+        {
+          "name": "X-User-Id なし → 401",
+          "request": {
+            "description": "「認証が必要です」が返る。",
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{baseUrl}}/api/account/quota",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "account", "quota"]
+            }
+          }
+        },
+        {
+          "name": "存在しないユーザー → 404",
+          "request": {
+            "description": "「ユーザーが見つかりません」が返る。",
+            "method": "GET",
+            "header": [
+              { "key": "X-User-Id", "value": "no-such-user" }
+            ],
+            "url": {
+              "raw": "{{baseUrl}}/api/account/quota",
+              "host": ["{{baseUrl}}"],
+              "path": ["api", "account", "quota"]
+            }
+          }
+        }
+      ]
+    }
+  ]
+}
