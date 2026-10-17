@@ -43,21 +43,6 @@
       "name": "quota",
       "item": [
         {
-          "name": "quota初期化",
-          "request": {
-            "description": "サインアップ時に events.createUser から呼ばれる想定。何度呼んでも同じ結果(冪等)。",
-            "method": "POST",
-            "header": [
-              { "key": "X-User-Id", "value": "{{userId}}" }
-            ],
-            "url": {
-              "raw": "{{baseUrl}}/api/internal/user-quota",
-              "host": ["{{baseUrl}}"],
-              "path": ["api", "internal", "user-quota"]
-            }
-          }
-        },
-        {
           "name": "quota取得",
           "request": {
             "method": "GET",

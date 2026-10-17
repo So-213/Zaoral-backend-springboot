@@ -32,16 +32,6 @@ public class AccountService {
     }
 
     /**
-     * サインアップ時(NextAuth の events.createUser)に呼ばれ、quota行を初期値で作成する。冪等。
-     */
-    @Transactional
-    public UserQuota initializeQuota(String userId) {
-        findUser(userId);
-        userQuotaRepository.insertIfAbsent(userId);
-        return findQuota(userId);
-    }
-
-    /**
      * プランを変更する。バリデーション・ユーザー存在チェック・同一プランチェックを内包する。
      * 文言は現行Next.js実装(account-service.ts)に合わせている。
      */
