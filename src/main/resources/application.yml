@@ -25,3 +25,10 @@ management:
     web:
       exposure:
         include: health
+
+# アプリケーション固有の設定
+zaoral:
+  cron:
+    # cronから呼ばれるエンドポイントの共有シークレット。
+    # 未設定の場合、該当エンドポイントは常に401を返す(CronAuthorization 参照)。
+    secret: ${CRON_SECRET:}
