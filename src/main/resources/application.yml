@@ -3,8 +3,11 @@ spring:
     name: zaoral-backend
   datasource:
     url: ${DATABASE_URL:jdbc:postgresql://localhost:5432/zaoral}
-    username: ${DATABASE_USERNAME:zaoral}
-    password: ${DATABASE_PASSWORD:zaoral_dev_password}
+    # DMLのみ許可されたロール。スキーマの適用はDB作成プロセスの責務であり、
+    # このアプリはDDLを打てない(実装ミスやSQLインジェクションでテーブルを壊せない)。
+    # ロール定義は Zaoral-frontend の ops/db/init/01-roles.sql 参照
+    username: ${DATABASE_USERNAME:zaoral_app}
+    password: ${DATABASE_PASSWORD:zaoral_app_dev_password}
   jpa:
     hibernate:
       ddl-auto: none
@@ -13,9 +16,9 @@ spring:
       naming:
         physical-strategy: org.hibernate.boot.model.naming.PhysicalNamingStrategyStandardImpl
     open-in-view: false
-  flyway:
-    baseline-on-migrate: true
-    baseline-version: 0
+  # Flywayの設定は削除した。スキーマの適用はDB作成プロセス(Zaoral-frontend の
+  # docker-compose の migrate サービス)が唯一の主体。SQLは ops/db/migration/ にある。
+  # このアプリは起動時にスキーマを作らず、前提の検証のみ行う(QuotaConsistencyChecker)。
 
 server:
   port: ${PORT:8080}
