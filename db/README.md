@@ -1,6 +1,10 @@
 # db/
 
-ローカル開発用のSQLスクリプト。アプリ本体には含まれない(Flywayのマイグレーションは `src/main/resources/db/migration/`)。
+ローカル開発用のSQLスクリプト。アプリ本体には含まれない。
+
+スキーマのマイグレーションはこのリポジトリでは管理していない。DB作成プロセス(`Zaoral-frontend`
+の `ops/db/migration/`)が唯一の適用主体で、このアプリはDDLを打たない。詳細は
+`Zaoral-frontend/ops/db/README.md` 参照。
 
 | ファイル | 内容 |
 |---|---|
